@@ -2,92 +2,7 @@ import ovito.data as ovd
 from ovito.data import CutoffNeighborFinder
 import ovito.modifiers as ovm
 import ovito.io as oio
-
-# import gbpy.util_funcs as gb_uf
-# import gbpy.pad_dump_file as pdf
-
 import numpy as np
-
-
-def atoms_within_cutoff():
-    ##### Consider atoms that are within rCut of each GB atom
-    data1 = ovd.DataCollection()
-    particles1 = ovd.Particles()
-    particles1.create_property('Position', data=pts_w_imgs)
-    data1.objects.append(particles1)
-
-    ct1 = 0
-    x_min = np.min(pts_w_imgs[:,ct1])
-    x_max = np.max(pts_w_imgs[:,ct1])
-    ct1 = 1
-    y_min = np.min(pts_w_imgs[:,ct1])
-    y_max = np.max(pts_w_imgs[:,ct1])
-    ct1 = 2
-    z_min = np.min(pts_w_imgs[:,ct1])
-    z_max = np.max(pts_w_imgs[:,ct1])
-    data1.objects.append(ovd.SimulationCell())
-
-    cell1 = data1.cell_[...]
-
-    cell1[0,0] = x_max - x_min
-    cell1[1,1] = y_max - y_min
-    cell1[2,2] = z_max - z_min
-    cell1[:,3] = [x_min, y_min, z_min]
-
-    finder1 = CutoffNeighborFinder(cutoff, data1);
-    n_pts = np.shape(pts_w_imgs)[0]
-
-    nn_tot_inds = []
-    for index in gb1_inds:
-        # print("Nearest neighbors of particle %i:" % index)
-        nn_inds = []
-        for neigh in finder1.find(index):
-            nn_inds.append(neigh.index)
-        nn_tot_inds.append(nn_inds)
-
-    flat_list = [item for sublist in nn_tot_inds for item in sublist]
-    nn_tot_inds = np.unique(np.array(flat_list))
-
-    nn_gb_inds = 0*gb1_inds - 1;
-    ct1 = 0;
-    for gb1 in gb1_inds:
-       nn_gb_inds[ct1]=np.where((nn_tot_inds - gb1) == 0)[0][0]
-       ct1 = ct1 + 1;
-
-    pts1 = pts_w_imgs[nn_tot_inds,:]
-    gb_inds = np.copy(nn_gb_inds)
-    inds1_array = inds_array[nn_tot_inds]
-    return pts1, gb_inds, inds1_array
-
-def num_rep_2d(xvec, yvec, rCut):
-    """
-    Function finds the number of replications necessary such that thecircle of radius rCut at the
-    center of the primitive-cell lies completely inside the super-cell.
-
-    Parameters
-    ------------
-    xvec :
-        The basis vector in x direction in x-z plane
-    yvec :
-        The basis vector in z direction in x-z plane
-    rCut
-        Cut-off radius for computing Delaunay triangulations
-
-    Returns
-    ------------
-    [int(m_x), int(m_y)] :
-        int(m_x) is the number of replications in x direction, int(m_y)
-        is the number of replication in z direction.
-
-    """
-    c_vec_norm = np.linalg.norm(np.cross(xvec, yvec))
-    d_y = c_vec_norm/(np.linalg.norm(yvec))
-    d_x = c_vec_norm/(np.linalg.norm(xvec))
-    m_x = np.ceil(rCut/d_y)
-    m_y = np.ceil(rCut/d_x)
-
-    return [int(m_x), int(m_y)]
-
 
 def analyze_gb_atoms(dir, dump_name):
     fname = dir+dump_name;
@@ -164,6 +79,34 @@ def analyze_gb_atoms(dir, dump_name):
     sio.savemat(mat_name, to_plot)
     #####################################################################################
 
+def num_rep_2d(xvec, yvec, rCut):
+    """
+    Function finds the number of replications necessary such that thecircle of radius rCut at the
+    center of the primitive-cell lies completely inside the super-cell.
+
+    Parameters
+    ------------
+    xvec :
+        The basis vector in x direction in x-z plane
+    yvec :
+        The basis vector in z direction in x-z plane
+    rCut
+        Cut-off radius for computing Delaunay triangulations
+
+    Returns
+    ------------
+    [int(m_x), int(m_y)] :
+        int(m_x) is the number of replications in x direction, int(m_y)
+        is the number of replication in z direction.
+
+    """
+    c_vec_norm = np.linalg.norm(np.cross(xvec, yvec))
+    d_y = c_vec_norm/(np.linalg.norm(yvec))
+    d_x = c_vec_norm/(np.linalg.norm(xvec))
+    m_x = np.ceil(rCut/d_y)
+    m_y = np.ceil(rCut/d_x)
+
+    return [int(m_x), int(m_y)]
 
 def compute_ovito_data(filename0):
     """
