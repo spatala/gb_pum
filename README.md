@@ -5,6 +5,7 @@
 The python codes are in the `py_codes` folder. The python codes perform the following tasks:
 
 1. Reads all the dump files one-by-one.
+	+ Change the path to find the dump files.
 2. Call the `analyze_gb_atoms` function in the `pum_util_funcs` module. This function reads the data in the dump file and creates a matlab data file (`.mat`).
 
 The following steps are followed in the `analyze_gb_atoms` function:
@@ -17,4 +18,14 @@ The following steps are followed in the `analyze_gb_atoms` function:
 
 
 ## Matlab Codes
+
+1. `plot_poly_units`: Reads the `.mat` files created by the python codes.
+	+ Calls the `cc_coors_analysis(mat_name)` function.
+2. `cc_coors_analysis`: Reads the mat_file, which contains the atoms positions and indices of the grain boundary atoms.
+	+ Calls the following functions:
+		- `identify_gb_vv`
+		- `get_polyhedra`
+		- `get_polyhedra_attributes`
+		- `find_sim_box_poly`
+
 
