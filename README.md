@@ -27,5 +27,6 @@ The following steps are followed in the `analyze_gb_atoms` function:
 		- `get_polyhedra`
 		- `get_polyhedra_attributes`
 		- `find_sim_box_poly`
+		- `plot_gb_poly`
 
 
